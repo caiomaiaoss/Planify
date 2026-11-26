@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Planify — Calendário Inteligente Acadêmico</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f1;--sf:#fff;--tx:#14262b;--mu:#5d7278;--ln:#d5e0dd;--ac:#0b7a6e;--ac2:#e3f2ef;--ok:#1f9d55;--wa:#e0a100;--er:#d64545;--sh:rgba(10,40,40,.08);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1819;--sf:#152426;--tx:#e6f0ee;--mu:#93a9a6;--ln:#2a3e40;--ac:#3cc2b0;--ac2:#173431;--sh:rgba(0,0,0,.3);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1819;--sf:#152426;--tx:#e6f0ee;--mu:#93a9a6;--ln:#2a3e40;--ac:#3cc2b0;--ac2:#173431;--sh:rgba(0,0,0,.3);color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:400 15px/1.45 "Bricolage Grotesque",system-ui,Segoe UI,sans-serif}
+button,input,select{font:inherit;color:inherit}
+header{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding:14px clamp(14px,4vw,40px);background:var(--sf);border-bottom:4px solid transparent;border-image:linear-gradient(90deg,#0b9a87,#2d8fd5,#8e6bd9,#d6559b,#e8505b,#f2a900) 1}
+.logo{font-weight:800;font-size:24px;letter-spacing:-.02em;color:var(--ac)}
+.logo small{display:block;font-weight:400;font-size:12px;color:var(--mu);letter-spacing:0}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav button{background:none;border:0;padding:8px 14px;border-radius:99px;cursor:pointer;color:var(--mu);font-weight:600;transition:background .15s}
+nav button:hover{background:var(--ac2)}
+nav button[aria-current=true]{background:var(--ac);color:var(--bg)}
+main{max-width:1100px;margin:0 auto;padding:22px clamp(14px,4vw,40px) 70px}
+h2{margin:0 0 4px;font-size:28px;letter-spacing:-.02em}
+.sub{color:var(--mu);margin:0 0 16px}
+.btn{background:var(--ac);color:var(--bg);border:0;border-radius:8px;padding:9px 16px;font-weight:600;cursor:pointer}
+.btn:hover{filter:brightness(1.1)}
+.ghost{background:none;border:1px solid var(--ln);border-radius:8px;padding:8px 14px;cursor:pointer}
+.ghost:hover{border-color:var(--ac)}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:12px;padding:16px;box-shadow:0 1px 3px var(--sh)}
+.sc{border-top:5px solid var(--c)}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(290px,1fr))}
+.stats{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-bottom:18px}
+.stat b{display:block;font-size:26px;line-height:1.1;letter-spacing:-.02em}
+.stat span{color:var(--mu);font-size:13px}
+.big{font-size:44px;font-weight:800;line-height:1;letter-spacing:-.03em}
+.row{display:flex;gap:8px;justify-content:space-between;align-items:center}
+.tag{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;color:#fff}
+.boxes{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0}
+.bx{width:26px;height:26px;border-radius:7px;border:2px solid var(--c);background:none;cursor:pointer;transition:transform .12s,background .12s}
+.bx:hover{transform:scale(1.15)}
+.bx.on{background:var(--c)}
+.meter{height:10px;background:var(--ln);border-radius:6px;overflow:hidden;margin:14px 0}
+.meter i{display:block;height:100%;background:var(--c)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1px solid var(--ln);background:var(--sf);border-radius:99px;padding:4px 12px;cursor:pointer;font-size:13px}
+.chip[aria-pressed=true]{background:var(--ac);color:var(--bg);border-color:var(--ac)}
+.scroll{overflow-x:auto}
+table{border-collapse:separate;border-spacing:4px;width:100%;min-width:640px}
+th{font-size:13px;padding:8px 4px;border-radius:8px;background:var(--ac2);color:var(--mu)}
+th.td{background:var(--ac);color:var(--bg)}
+td.cell{height:52px;cursor:pointer;border-radius:8px;border:1px dashed var(--ln);text-align:center;padding:3px;min-width:84px}
+td.cell:hover{border-color:var(--ac);background:var(--ac2)}
+.pill{display:block;border-radius:6px;padding:6px;font-weight:600;font-size:12px;border-left:4px solid var(--c);background:color-mix(in srgb,var(--c) 25%,var(--sf));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;min-width:640px}
+.cal .h{text-align:center;font-weight:600;color:var(--mu);font-size:12px;padding:4px}
+.day{min-height:92px;background:var(--sf);border:1px solid var(--ln);border-radius:8px;padding:5px;cursor:pointer;font-size:12px;text-align:left;display:block;width:100%;overflow:hidden}
+.day:hover{border-color:var(--ac);transform:translateY(-1px)}
+.day.out{opacity:.4}
+.day.today{border:2px solid var(--ac);background:var(--ac2)}
+.day.hl{background:color-mix(in srgb,#f2a900 12%,var(--sf))}
+.hol{color:#b86a00;font-weight:600;font-size:11px;display:block}
+.ev{display:block;margin-top:2px;padding:1px 5px;border-radius:4px;font-size:11px;border-left:3px solid var(--c);background:color-mix(in srgb,var(--c) 25%,var(--sf));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.more{color:var(--mu);font-size:11px}
+.list{display:grid;gap:8px}
+.item{display:flex;gap:12px;align-items:center;background:var(--sf);border:1px solid var(--ln);border-left:5px solid var(--c);border-radius:10px;padding:10px 14px}
+.item.done{opacity:.5}
+.item.done .tt{text-decoration:line-through}
+.dt{min-width:44px;text-align:center;font-weight:800;line-height:1.1}
+.dt small{display:block;font-weight:400;color:var(--mu);font-size:11px}
+.x{background:none;border:0;color:var(--mu);cursor:pointer;font-size:18px;padding:2px 6px}
+.x:hover{color:var(--er)}
+dialog{border:1px solid var(--ln);border-radius:14px;background:var(--sf);color:var(--tx);padding:20px;width:min(430px,92vw)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+dialog h3{margin:0 0 10px}
+label{display:block;font-size:13px;color:var(--mu);margin:10px 0 3px}
+input,select{width:100%;padding:8px 10px;border:1px solid var(--ln);border-radius:8px;background:var(--bg)}
+input[type=checkbox]{width:auto}
+dialog .row.end{margin-top:16px;justify-content:flex-end}
+.sws{display:flex;gap:8px;flex-wrap:wrap}
+.sw{width:28px;height:28px;border-radius:50%;border:3px solid transparent;background:var(--c);cursor:pointer}
+.sw.on{border-color:var(--tx)}
+.li{padding:5px 0;border-bottom:1px solid var(--ln)}
+.empty{text-align:center;padding:34px;color:var(--mu)}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(30px);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:99px;opacity:0;pointer-events:none;transition:.25s;max-width:90vw;z-index:50}
+#toast.on{opacity:1;transform:translateX(-50%)}
+.week{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.wd{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:8px;min-height:120px}.wh{font-weight:700;text-align:center;padding:4px;border-radius:6px;background:var(--ac2);color:var(--mu);margin-bottom:6px}.wh.td{background:var(--ac);color:var(--bg)}.week .pill{width:100%;text-align:left;border:0;border-left:4px solid var(--c);cursor:pointer;margin-bottom:4px;white-space:normal}.addb{width:100%;border:1px dashed var(--ln);background:none;border-radius:6px;cursor:pointer;color:var(--mu)}textarea{width:100%;background:var(--bg);color:var(--tx);border:1px solid var(--ln);border-radius:8px;padding:8px;font:inherit}
+#bot{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:40}#fab{width:58px;height:58px;border-radius:50%;border:0;background:var(--ac);color:var(--bg);font-size:28px;cursor:pointer;box-shadow:0 4px 14px var(--sh);position:relative}#fab.al::after{content:"";position:absolute;top:2px;right:2px;width:14px;height:14px;border-radius:50%;background:var(--er);border:2px solid var(--sf)}#panel{display:none;position:absolute;right:0;bottom:70px;width:min(350px,calc(100vw - 32px));height:min(480px,70vh);background:var(--sf);border:1px solid var(--ln);border-radius:16px;box-shadow:0 8px 30px var(--sh);flex-direction:column;overflow:hidden}#panel.on{display:flex}.ph{padding:12px 14px;background:var(--ac);color:var(--bg);font-weight:700}#msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}.m{max-width:88%;padding:8px 12px;border-radius:14px;background:var(--ac2);align-self:flex-start;font-size:14px}.m.u{background:var(--ac);color:var(--bg);align-self:flex-end}.qs{display:flex;gap:6px;flex-wrap:wrap;padding:0 12px 8px}.pf{display:flex;gap:6px;padding:10px;border-top:1px solid var(--ln)}
+body{background:radial-gradient(1100px 480px at 85% -10%,color-mix(in srgb,var(--ac) 16%,transparent),transparent),var(--bg)}
+.hero{background:linear-gradient(120deg,#0b9a87,#2d8fd5 55%,#8e6bd9);color:#fff;border-radius:16px;padding:16px 20px;margin-bottom:20px;box-shadow:0 8px 24px var(--sh)}.hero h3{margin:0;font-size:20px}.hero p{margin:2px 0 0;opacity:.9;font-size:14px}.hc{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.hc span{background:rgba(255,255,255,.2);border-radius:99px;padding:3px 12px;font-size:13px}
+.card,.item,.wd{animation:up .35s ease both}@keyframes up{from{opacity:0;transform:translateY(8px)}}.card{transition:transform .15s,box-shadow .15s}.card:hover{transform:translateY(-2px);box-shadow:0 10px 24px var(--sh)}.bx.on{animation:pop .25s}@keyframes pop{50%{transform:scale(1.35)}}
+.hc2{display:flex;gap:6px;flex-wrap:wrap}.hc2 span{font-size:12px;padding:3px 10px;border-radius:99px;background:color-mix(in srgb,var(--c) 22%,var(--sf));border:1px solid var(--c)}.hc2 .no{border-style:dashed;color:var(--mu);border-color:var(--ln);background:none}
+.tr{display:grid;grid-template-columns:44px 1fr 1fr;gap:8px;align-items:center;margin-top:8px}.tr b{color:var(--ac)}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Planify<small>Calendário inteligente do estudante</small></div>
+  <nav id="nav"></nav>
+  <button class="ghost" id="theme" aria-label="Alternar modo claro e escuro">🌗 Tema</button>
+</header>
+<main id="app"></main>
+<dialog id="dlg"><div id="dlgb"></div></dialog>
+<div id="toast" role="status"></div>
+
+<script>
+var KEY="planify-v2",PAL=["#0b9a87","#e8505b","#f2a900","#8e6bd9","#2d8fd5","#e27d3a","#3fa34d","#d6559b"];
+var TYPES={prova:["Prova","📝"],trabalho:["Trabalho","📦"],seminario:["Seminário","🎤"],falta:["Falta","⛔"],outro:["Outro","📌"]};
+var DAYS=["Segunda","Terça","Quarta","Quinta","Sexta","Sábado"],TIMES=["07:30–09:30","09:30–11:30","13:30–15:30","15:30–17:30","19:00–20:45","20:45–22:30"];
+var HOL={"2027-01-01":"Confraternização","2027-02-08":"Carnaval","2027-02-09":"Carnaval","2027-02-10":"Cinzas","2027-03-26":"Sexta-Feira Santa","2027-03-28":"Páscoa","2027-04-21":"Tiradentes","2027-05-01":"Dia do Trabalho","2027-05-27":"Corpus Christi","2027-09-07":"Independência","2027-10-12":"N. Sra. Aparecida","2027-11-02":"Finados","2027-11-15":"Proclamação da República","2027-11-20":"Consciência Negra","2027-12-25":"Natal"};
+var MONTHS=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+var S={subjects:[],slots:{},events:[]},view="materias",cur=new Date(2027,1,1),filt="todas";
+try{var raw=localStorage.getItem(KEY);if(raw)S=JSON.parse(raw)}catch(e){}
+S.blocks=S.blocks||[];S.grades=S.grades||{};
+var $=function(s){return document.querySelector(s)},$$=function(s){return document.querySelectorAll(s)};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function uid(){return Math.random().toString(36).slice(2,9)}
+function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function br(s){return s.split("-").reverse().join("/")}
+function subj(id){return S.subjects.find(function(s){return s.id===id})}
+function sc(id){var s=subj(id);return s?s.color:"#8a9a9a"}
+function sn(id){var s=subj(id);return s?s.name:"—"}
+function state(s){var r=s.used/s.max;if(s.used>s.max)return["var(--er)","Passou do limite"];if(s.used===s.max)return["var(--er)","Limite atingido"];if(r>=.7)return["var(--wa)","Atenção"];return["var(--ok)","Tranquilo"]}
+var tt;function toast(m){var t=$("#toast");t.textContent=m;t.className="on";clearTimeout(tt);tt=setTimeout(function(){t.className=""},3200)}
+function modal(title,html,onOk,label){$("#dlgb").innerHTML="<h3>"+title+"</h3>"+html+'<div class="row end"><button class="ghost" id="cx">Fechar</button>'+(onOk?'<button class="btn" id="ok">'+(label||"Salvar")+"</button>":"")+"</div>";$("#dlg").showModal();$("#cx").onclick=function(){$("#dlg").close()};if(onOk)$("#ok").onclick=function(){if(onOk()!==false)$("#dlg").close()}}
+function subjOpts(sel,extra){return (extra||"")+S.subjects.map(function(s){return '<option value="'+s.id+'"'+(s.id===sel?" selected":"")+">"+esc(s.name)+"</option>"}).join("")}
+function needSubj(){if(!S.subjects.length){modal("Cadastre uma matéria primeiro","<p>Na aba Faltas, adicione suas disciplinas.</p>",function(){go("faltas")},"Ir para Faltas");return true}return false}
+function go(v){view=v;render()}
+function render(){
+  var tabs=[["materias","📚 Matérias"],["faltas","🚦 Faltas"],["rotina","🗓️ Rotina"],["avaliacoes","📝 Avaliações"],["notas","🎓 Notas"],["calendario","📅 Calendário"]];
+  $("#nav").innerHTML=tabs.map(function(t){return '<button data-v="'+t[0]+'" aria-current="'+(view===t[0])+'">'+t[1]+"</button>"}).join("");
+  $$("#nav button").forEach(function(b){b.onclick=function(){go(b.dataset.v)}});
+  ({faltas:vFaltas,rotina:vRotina,avaliacoes:vAval,calendario:vCal,notas:vNotas,materias:vMaterias})[view]();heroBar();
+}
+function nextEvents(){var t=iso(new Date());return S.events.filter(function(e){return e.type!=="falta"&&!e.done&&e.date>=t}).sort(function(a,b){return a.date<b.date?-1:1})}
+function daysTo(d){return Math.round((new Date(d+"T12:00")-new Date())/864e5)}
+
+function subjForm(s){
+  var pick=s?s.color:PAL[S.subjects.length%PAL.length];
+  modal(s?"Editar matéria":"Nova matéria",'<label>Nome da matéria</label><input id="n" value="'+(s?esc(s.name):"")+'" placeholder="Ex.: Cálculo I"><label>Quantas faltas essa matéria permite?</label><input id="c" type="number" min="1" max="99" value="'+(s?s.max:8)+'"><label>Cor</label><div class="sws">'+PAL.map(function(c){return '<button type="button" class="sw'+(c===pick?" on":"")+'" style="--c:'+c+'" data-c="'+c+'" aria-label="Cor"></button>'}).join("")+"</div>",function(){
+    var n=$("#n").value.trim(),c=parseInt($("#c").value,10);if(!n||!c||c<1){$("#n").focus();return false}
+    if(s){s.name=n;s.max=c;s.color=pick}else S.subjects.push({id:uid(),name:n,max:c,used:0,color:pick});save();render()});
+  $$(".sw").forEach(function(b){b.onclick=function(){pick=b.dataset.c;$$(".sw").forEach(function(x){x.classList.toggle("on",x===b)})}});
+}
+function bump(id,d){var s=subj(id);s.used=Math.max(0,s.used+d);save();render();
+  if(d>0){if(s.used>s.max)toast("Você passou do limite de "+s.name);else if(s.used===s.max)toast("Limite de faltas atingido em "+s.name);else if(s.used>=.7*s.max)toast("Atenção: restam só "+(s.max-s.used)+" faltas em "+s.name)}}
+
+function vFaltas(){
+  var used=0,all=0,risk=0;S.subjects.forEach(function(s){used+=s.used;all+=s.max;if(s.used>=.7*s.max)risk++});
+  var n=nextEvents()[0],h='<h2>Controle de faltas</h2><p class="sub">Defina quantas faltas cada matéria permite e marque uma a uma. O alerta amarelo aparece a partir de 70% do limite.</p>';
+  if(S.subjects.length)h+='<div class="stats"><div class="card stat"><b>'+used+" / "+all+'</b><span>faltas usadas</span></div><div class="card stat"><b style="color:'+(risk?"var(--wa)":"var(--ok)")+'">'+risk+'</b><span>matérias em alerta</span></div><div class="card stat"><b>'+(n?(daysTo(n.date)<=0?"hoje":daysTo(n.date)+" dias"):"—")+'</b><span>'+(n?esc(TYPES[n.type][1]+" "+sn(n.subj)):"próxima avaliação")+"</span></div></div>";
+  h+='<div class="bar"><button class="btn" id="add">Cadastrar matérias</button>'+(S.subjects.length?"":'<button class="ghost" id="demo">Carregar exemplo</button>')+"</div>";
+  if(!S.subjects.length)h+='<div class="card empty">Nenhuma matéria ainda. Adicione a primeira e informe quantas faltas ela permite.</div>';
+  else h+='<div class="grid">'+S.subjects.map(function(s){var st=state(s),rem=Math.max(0,s.max-s.used),bx="";
+    if(s.max<=40){for(var i=0;i<s.max;i++)bx+='<button class="bx'+(i<s.used?" on":"")+'" data-b="'+s.id+":"+i+'" aria-label="Falta '+(i+1)+'"></button>';bx='<div class="boxes">'+bx+"</div>"}
+    else bx='<div class="meter"><i style="width:'+Math.min(100,s.used/s.max*100)+'%"></i></div>';
+    return '<div class="card sc" style="--c:'+s.color+'"><div class="row"><b>'+esc(s.name)+'</b><span><button class="x" data-ed="'+s.id+'" aria-label="Editar">✎</button><button class="x" data-del="'+s.id+'" aria-label="Remover">×</button></span></div>'+
+    '<div class="row" style="margin-top:10px;align-items:flex-end"><div><div class="big" style="color:'+st[0]+'">'+rem+'</div><span class="sub">'+(rem===1?"falta restante":"faltas restantes")+'</span></div><div style="text-align:right"><span class="tag" style="background:'+st[0]+'">'+st[1]+'</span><div class="sub" style="margin:6px 0 0">'+s.used+" de "+s.max+" usadas"+(s.used>s.max?" (+"+(s.used-s.max)+")":"")+"</div></div></div>"+bx+
+    '<div class="row"><button class="ghost" data-m="'+s.id+'">− 1</button><button class="btn" data-p="'+s.id+'">+ 1 falta</button></div></div>'}).join("")+"</div>";
+  $("#app").innerHTML=h;
+  $("#add").onclick=function(){go("materias")};
+  var d=$("#demo");if(d)d.onclick=function(){[["Cálculo I",8],["Física Geral",12],["Programação",8],["Álgebra Linear",4]].forEach(function(x,i){S.subjects.push({id:uid(),name:x[0],max:x[1],used:i===2?6:i,color:PAL[i]})});S.events.push({id:uid(),subj:S.subjects[0].id,type:"prova",title:"P1",date:"2027-03-25"},{id:uid(),subj:S.subjects[2].id,type:"trabalho",title:"Projeto final",date:"2027-03-30"});save();render()};
+  $$("[data-p]").forEach(function(b){b.onclick=function(){bump(b.dataset.p,1)}});
+  $$("[data-m]").forEach(function(b){b.onclick=function(){bump(b.dataset.m,-1)}});
+  $$("[data-b]").forEach(function(b){b.onclick=function(){var a=b.dataset.b.split(":"),s=subj(a[0]),i=+a[1],v=s.used===i+1?i:i+1;bump(s.id,v-s.used)}});
+  $$("[data-ed]").forEach(function(b){b.onclick=function(){subjForm(subj(b.dataset.ed))}});
+  $$("[data-del]").forEach(function(b){b.onclick=function(){if(true){delSubj(b.dataset.del);return;var id=b.dataset.del;S.subjects=S.subjects.filter(function(s){return s.id!==id});S.events=S.events.filter(function(e){return e.subj!==id});Object.keys(S.slots).forEach(function(k){if(S.slots[k].replace("study:","")===id)delete S.slots[k]});save();render()}}});
+}
+
+function vRotina(){
+  var td=(new Date().getDay()+6)%7;
+  var h='<h2>Rotina semanal</h2><p class="sub">Toque em um horário para colocar uma aula ou um bloco de estudo.</p>';
+  if(S.subjects.length)h+='<div class="chips">'+S.subjects.map(function(s){return '<span class="chip" style="border-left:5px solid '+s.color+'">'+esc(s.name)+"</span>"}).join("")+"</div>";
+  h+='<div class="card scroll"><table><tr><th></th>'+DAYS.map(function(d,i){return '<th class="'+(i===td?"td":"")+'">'+d+"</th>"}).join("")+"</tr>";
+  TIMES.forEach(function(t,r){h+="<tr><th>"+t+"</th>"+DAYS.map(function(d,c){var k=c+"-"+r,v=S.slots[k],lab="";
+    if(v){var st=v.indexOf("study:")===0,id=st?v.slice(6):v;if(subj(id))lab='<span class="pill" style="--c:'+sc(id)+'">'+(st?"📖 Estudo · ":"")+esc(sn(id))+"</span>"}
+    return '<td class="cell" data-k="'+k+'">'+lab+"</td>"}).join("")+"</tr>"});
+  $("#app").innerHTML=h+"</table></div>";
+  $$(".cell").forEach(function(td){td.onclick=function(){if(needSubj())return;var k=td.dataset.k,v=S.slots[k]||"";
+    modal(DAYS[k.split("-")[0]]+", "+TIMES[k.split("-")[1]],'<label>Tipo</label><select id="t"><option value="c">Aula</option><option value="s"'+(v.indexOf("study:")===0?" selected":"")+'>Bloco de estudo</option></select><label>Matéria</label><select id="m">'+subjOpts(v.replace("study:",""),'<option value="">— Livre (limpar) —</option>')+"</select>",function(){var m=$("#m").value;if(!m)delete S.slots[k];else S.slots[k]=($("#t").value==="s"?"study:":"")+m;save();render()})}});
+}
+
+function evForm(date,onDone){
+  modal(date?br(date):"Nova avaliação ou prazo",'<label>Matéria</label><select id="m">'+subjOpts()+'</select><label>Tipo</label><select id="t">'+Object.keys(TYPES).map(function(k){return '<option value="'+k+'">'+TYPES[k][1]+" "+TYPES[k][0]+(k==="falta"?" (+1 no contador)":"")+"</option>"}).join("")+'</select><label>Descrição (opcional)</label><input id="d" placeholder="Ex.: P1, entrega do projeto"><label>Data</label><input id="dt" type="date" value="'+(date||"")+'">',function(){var d=$("#dt").value,t=$("#t").value,m=$("#m").value;if(!d){$("#dt").focus();return false}
+    S.events.push({id:uid(),subj:m,type:t,title:$("#d").value.trim(),date:d});if(t==="falta"){subj(m).used++;save();render();toast("Falta registrada em "+sn(m));return}save();render()},"Adicionar")}
+function delEv(id){var e=S.events.find(function(x){return x.id===id});if(e&&e.type==="falta"&&subj(e.subj))subj(e.subj).used=Math.max(0,subj(e.subj).used-1);S.events=S.events.filter(function(x){return x.id!==id});save()}
+
+function vAval(){
+  var t=iso(new Date()),ev=S.events.filter(function(e){return e.type!=="falta"&&(filt==="todas"||e.type===filt)}).sort(function(a,b){return a.date<b.date?-1:1});
+  var h='<h2>Radar de avaliações</h2><p class="sub">Provas, trabalhos e seminários de todas as matérias em ordem de data.</p><div class="bar"><button class="btn" id="add">+ Nova avaliação</button></div><div class="chips">'+[["todas","Todas"],["prova","📝 Provas"],["trabalho","📦 Trabalhos"],["seminario","🎤 Seminários"],["outro","📌 Outros"]].map(function(c){return '<button class="chip" data-f="'+c[0]+'" aria-pressed="'+(filt===c[0])+'">'+c[1]+"</button>"}).join("")+"</div>";
+  h+=ev.length?'<div class="list">'+ev.map(function(e){var p=e.date.split("-"),d=daysTo(e.date),bg=d<0?"var(--mu)":d<=3?"var(--er)":d<=7?"var(--wa)":"var(--ok)",lab=d<0?"passou":d===0?"hoje":d===1?"amanhã":"em "+d+" dias";
+    return '<div class="item'+(e.done?" done":"")+'" style="--c:'+sc(e.subj)+'"><input type="checkbox" data-ck="'+e.id+'"'+(e.done?" checked":"")+' aria-label="Concluída"><div class="dt">'+p[2]+"<small>"+MONTHS[+p[1]-1].slice(0,3)+'</small></div><div style="flex:1"><div class="tt"><b>'+esc(sn(e.subj))+"</b> "+esc(e.title||"")+'</div><small class="sub">'+TYPES[e.type][1]+" "+TYPES[e.type][0]+'</small></div><span class="tag" style="background:'+bg+'">'+lab+'</span><button class="x" data-del="'+e.id+'" aria-label="Remover">×</button></div>'}).join("")+"</div>":'<div class="card empty">Nada por aqui. Cadastre as datas do plano de ensino no início do semestre.</div>';
+  $("#app").innerHTML=h;$("#add").onclick=function(){if(!needSubj())evForm("")};
+  $$("[data-f]").forEach(function(b){b.onclick=function(){filt=b.dataset.f;render()}});
+  $$("[data-ck]").forEach(function(b){b.onclick=function(){var e=S.events.find(function(x){return x.id===b.dataset.ck});e.done=b.checked;save();render()}});
+  $$("[data-del]").forEach(function(b){b.onclick=function(){delEv(b.dataset.del);render()}});
+}
+
+function dayModal(date){
+  var evs=S.events.filter(function(e){return e.date===date});
+  var list=evs.map(function(e){return '<div class="row li"><span>'+TYPES[e.type][1]+" <b>"+esc(sn(e.subj))+"</b> "+esc(e.title||TYPES[e.type][0])+(e.from?" · "+e.from+(e.to?"–"+e.to:""):"")+'</span><button class="x" data-de="'+e.id+'" aria-label="Remover">×</button></div>'}).join("");
+  if(!S.subjects.length){modal(br(date),(HOL[date]?"<p>🎌 "+HOL[date]+"</p>":"")+"<p>Cadastre uma matéria na aba Faltas para adicionar eventos.</p>");return}
+  modal(br(date),(HOL[date]?'<p class="hol" style="font-size:14px">🎌 '+HOL[date]+"</p>":"")+list+'<div class="row"><div><label>Início (opcional)</label><input id="h1" type="time"></div><div><label>Fim</label><input id="h2" type="time"></div></div><label>Matéria</label><select id="m">'+subjOpts()+'</select><label>Tipo</label><select id="t">'+Object.keys(TYPES).map(function(k){return '<option value="'+k+'">'+TYPES[k][1]+" "+TYPES[k][0]+(k==="falta"?" (+1 no contador)":"")+"</option>"}).join("")+'</select><label>Descrição (opcional)</label><input id="d" placeholder="Ex.: P1, entrega do projeto">',function(){
+    var t=$("#t").value,m=$("#m").value;S.events.push({id:uid(),subj:m,type:t,title:$("#d").value.trim(),date:date,from:$("#h1").value,to:$("#h2").value});if(t==="falta")subj(m).used++;save();render();if(t==="falta")toast("Falta registrada em "+sn(m))},"Adicionar");
+  $$("[data-de]").forEach(function(b){b.onclick=function(){delEv(b.dataset.de);$("#dlg").close();render()}});
+}
+
+function vCal(){
+  var y=cur.getFullYear(),m=cur.getMonth(),start=new Date(y,m,1-new Date(y,m,1).getDay()),t=iso(new Date());
+  var h='<h2>Calendário '+y+'</h2><p class="sub">Toque em um dia para ver, adicionar ou registrar uma falta. Feriados nacionais aparecem destacados.</p><div class="bar"><button class="ghost" id="pv" aria-label="Mês anterior">‹</button><select id="ms" style="width:auto">'+MONTHS.map(function(n,i){return '<option value="'+i+'"'+(i===m?" selected":"")+">"+n+"</option>"}).join("")+'</select><b style="font-size:18px">'+y+'</b><button class="ghost" id="nx" aria-label="Próximo mês">›</button><button class="ghost" id="hj">Hoje</button></div><div class="scroll"><div class="cal">'+["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"].map(function(d){return '<div class="h">'+d+"</div>"}).join("");
+  for(var i=0;i<42;i++){var d=new Date(start.getFullYear(),start.getMonth(),start.getDate()+i),k=iso(d);if(i>=35&&d.getMonth()!==m)break;
+    var evs=S.events.filter(function(e){return e.date===k});
+    h+='<button class="day'+(d.getMonth()!==m?" out":"")+(k===t?" today":"")+(HOL[k]?" hl":"")+'" data-d="'+k+'"><b>'+d.getDate()+"</b>"+(HOL[k]?'<span class="hol">'+HOL[k]+"</span>":"")+evs.slice(0,2).map(function(e){return '<span class="ev" style="--c:'+sc(e.subj)+'">'+TYPES[e.type][1]+" "+(e.from?e.from+" ":"")+esc(e.title||sn(e.subj))+"</span>"}).join("")+(evs.length>2?'<span class="more">+'+(evs.length-2)+" mais</span>":"")+"</button>"}
+  $("#app").innerHTML=h+"</div></div>";
+  $("#pv").onclick=function(){cur=new Date(y,m-1,1);render()};$("#nx").onclick=function(){cur=new Date(y,m+1,1);render()};
+  $("#ms").onchange=function(){cur=new Date(y,+$("#ms").value,1);render()};$("#hj").onclick=function(){cur=new Date();render()};
+  $$(".day").forEach(function(b){b.onclick=function(){dayModal(b.dataset.d)}});
+}
+
+var DN=["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"];
+function blockForm(b,day){var n=!b;b=b||{subj:"",day:day||0,from:"07:15",to:"09:00",kind:"aula"};if(needSubj())return;
+ modal(n?"Novo horário":"Editar horário",'<label>Matéria</label><select id="m">'+subjOpts(b.subj)+'</select><label>Tipo</label><select id="k"><option value="aula">Aula</option><option value="estudo"'+(b.kind==="estudo"?" selected":"")+'>Bloco de estudo</option></select><label>Dia</label><select id="dy">'+DN.map(function(d,i){return '<option value="'+i+'"'+(i===+b.day?" selected":"")+">"+d+"</option>"}).join("")+'</select><div class="row"><div><label>Início</label><input id="f" type="time" value="'+b.from+'"></div><div><label>Fim</label><input id="t" type="time" value="'+b.to+'"></div></div>'+(n?"":'<p><button class="ghost" id="rm">Excluir horário</button></p>'),function(){var f=$("#f").value,t=$("#t").value;if(!f||!t){err("Preencha início e fim");return false}if(t<=f){err("O fim precisa ser depois do início");return false}var oc=overlap(+$("#dy").value,f,t,function(x){return !n&&x===b});if(oc){err("Esse horário bate com "+sn(oc.subj)+" ("+oc.from+"–"+oc.to+")");return false}var o={subj:$("#m").value,kind:$("#k").value,day:+$("#dy").value,from:f,to:t};if(n)S.blocks.push(Object.assign({id:uid()},o));else Object.assign(b,o);save();render()});
+ var r=$("#rm");if(r)r.onclick=function(){S.blocks=S.blocks.filter(function(x){return x!==b});save();$("#dlg").close();render()}}
+function vRotina(){var td=(new Date().getDay()+6)%7,h='<h2>Rotina semanal</h2><p class="sub">Horários livres: coloque a hora exata, como 07:15 até 09:37.</p><div class="bar"><button class="btn" id="ab">+ Horário</button></div><div class="week">';
+ DN.forEach(function(d,i){var bl=S.blocks.filter(function(b){return b.day===i}).sort(function(a,b){return a.from<b.from?-1:1});h+='<div class="wd"><div class="wh'+(i===td?" td":"")+'">'+d.slice(0,3)+"</div>"+bl.map(function(b){return '<button class="pill" data-b="'+b.id+'" style="--c:'+sc(b.subj)+'"><small>'+b.from+"–"+b.to+"</small><br>"+(b.kind==="estudo"?"📖 ":"")+esc(sn(b.subj))+"</button>"}).join("")+'<button class="addb" data-d="'+i+'" aria-label="Adicionar horário">+</button></div>'});
+ $("#app").innerHTML=h+"</div>";$("#ab").onclick=function(){blockForm()};
+ $$("[data-d]").forEach(function(b){b.onclick=function(){blockForm(null,+b.dataset.d)}});$$("[data-b]").forEach(function(b){b.onclick=function(){blockForm(S.blocks.find(function(x){return x.id===b.dataset.b}))}})}
+async function useSample(){try{return await claude.use("sample")}catch(e){return null}}
+function aiModal(title,prompt,apply){modal(title,'<p class="sub">Cole o texto (copiado do SIGAA, por exemplo) ou envie um print. A IA lê e preenche; depois você confere.</p><textarea id="tx" rows="5"></textarea><label>Print ou foto</label><input id="fl" type="file" accept="image/*">',function(){run();return false},"Importar");
+ async function run(){var b=$("#ok"),tx=$("#tx").value,f=$("#fl").files[0];if(!tx&&!f){toast("Cole o texto ou escolha um print");return}b.textContent="Lendo...";b.disabled=true;
+  try{var s=await useSample();if(!s)throw 0;var r=await s.json(prompt+"\n"+tx,f?{images:[f]}:{});if(!Array.isArray(r))throw 0;var n=apply(r);save();$("#dlg").close();render();toast(n+" itens importados. Confira e ajuste.")}catch(e){b.textContent="Importar";b.disabled=false;toast("Não consegui ler. Tente outro print ou texto.")}}}
+function getSubj(name,hours){var s=S.subjects.find(function(y){return y.name.toLowerCase()===String(name).toLowerCase()});if(!s){s={id:uid(),name:String(name),max:hours?Math.max(1,Math.floor(hours*.25)):8,used:0,color:PAL[S.subjects.length%PAL.length]};S.subjects.push(s)}return s}
+function importGrade(){aiModal("Importar grade",'Extraia a grade de horários de aulas. Responda SOMENTE um array JSON de objetos {"subject":string,"day":0 a 6 (0=segunda),"from":"HH:MM","to":"HH:MM","hours":carga horária ou null}. Se houver códigos de horário do SIGAA (ex.: 35T12), converta para dias e horários reais; na dúvida estime.',function(r){r.forEach(function(x){var s=getSubj(x.subject,x.hours);S.blocks.push({id:uid(),subj:s.id,kind:"aula",day:Math.min(6,Math.max(0,+x.day||0)),from:x.from,to:x.to})});return r.length})}
+function importNotas(){aiModal("Importar notas",'Extraia as notas lançadas. Responda SOMENTE um array JSON de {"subject":string,"name":string da avaliação,"value":nota obtida,"max":valor máximo}.',function(r){r.forEach(function(x){var s=getSubj(x.subject);(S.grades[s.id]=S.grades[s.id]||[]).push({id:uid(),n:String(x.name||"Nota"),v:+x.value||0,max:+x.max||0})});return r.length})}
+function vNotas(){var h='<h2>Notas</h2><p class="sub">Registre cada avaliação e veja quanto falta para a meta. Tudo manual, do seu jeito.</p>';
+ if(!S.subjects.length)h+='<div class="card empty">Cadastre matérias na aba Faltas.</div>';else h+='<div class="grid">'+S.subjects.map(function(s){var g=S.grades[s.id]||[],got=0,dist=0,meta=s.meta||60,tot=s.total||100;g.forEach(function(x){got+=+x.v;dist+=+x.max});var need=Math.max(0,meta-got),left=Math.max(0,tot-dist),msg=need===0?"🎉 Meta batida!":need>left?"⚠️ Meta difícil: faltam "+need+" pts e só restam "+left+" em jogo":"Faltam "+need+" pts ("+(left?Math.round(need/left*100):0)+"% do que resta)";
+  return '<div class="card sc" style="--c:'+s.color+'"><div class="row"><b>'+esc(s.name)+'</b><button class="x" data-mt="'+s.id+'">🎯 '+meta+"/"+tot+'</button></div><div class="big" style="margin:8px 0">'+got+'<small class="sub"> pts</small></div><div class="meter" style="--c:'+s.color+'"><i style="width:'+Math.min(100,got/tot*100)+'%"></i></div><p class="sub">'+msg+"</p>"+g.map(function(x){return '<div class="row li"><span>'+esc(x.n)+"</span><span>"+x.v+"/"+x.max+' <button class="x" data-dg="'+s.id+":"+x.id+'" aria-label="Remover">×</button></span></div>'}).join("")+'<div class="row" style="margin-top:10px"><button class="ghost" data-ag="'+s.id+'">+ Nota</button><button class="ghost" data-pl="'+s.id+'">🤖 Plano</button></div></div>'}).join("")+"</div>";
+ $("#app").innerHTML=h;
+ $$("[data-ag]").forEach(function(b){b.onclick=function(){var s=subj(b.dataset.ag);modal("Nova nota · "+esc(s.name),'<label>Avaliação</label><input id="n" placeholder="Ex.: P1"><label>Nota obtida</label><input id="v" type="number" step="0.1"><label>Vale quanto (pontos)</label><input id="x" type="number" step="0.1">',function(){var v=parseFloat($("#v").value),x=parseFloat($("#x").value);if(isNaN(v)||isNaN(x)){toast("Preencha as notas");return false}(S.grades[s.id]=S.grades[s.id]||[]).push({id:uid(),n:$("#n").value.trim()||"Nota",v:v,max:x});save();render()})}});
+ $$("[data-dg]").forEach(function(b){b.onclick=function(){var a=b.dataset.dg.split(":");S.grades[a[0]]=S.grades[a[0]].filter(function(x){return x.id!==a[1]});save();render()}});
+ $$("[data-mt]").forEach(function(b){b.onclick=function(){var s=subj(b.dataset.mt);modal("Meta de "+esc(s.name),'<label>Pontos para passar</label><input id="a" type="number" value="'+(s.meta||60)+'"><label>Total de pontos da matéria</label><input id="b" type="number" value="'+(s.total||100)+'">',function(){s.meta=+$("#a").value||60;s.total=+$("#b").value||100;save();render()})}});
+ $$("[data-pl]").forEach(function(b){b.onclick=function(){openBot("Monte um plano de estudo e uma lista de exercícios para eu passar em "+sn(b.dataset.pl))}})}
+var chat=[],TIPS=["Estude em blocos de 25 a 50 minutos e descanse 5. Cérebro agradece! 🧠","Revise a matéria no mesmo dia da aula: 15 minutinhos já salvam horas depois.","Semana de prova? Comece 7 dias antes, um assunto por dia. Sem correria!","Deixe o celular em outro cômodo durante o estudo. Funciona demais.","Faltar é humano, mas guarde suas faltas para imprevistos de verdade 😉","Comece pela matéria mais difícil, quando a cabeça está fresca."];
+function faltasMsg(){if(!S.subjects.length)return "Cadastre suas matérias na aba Faltas que eu acompanho tudo pra você!";return S.subjects.map(function(s){var r=s.max-s.used;return (r<=0?"🔴":s.used>=.7*s.max?"🟡":"🟢")+" "+s.name+": "+(r>0?"sobram "+r+" de "+s.max:"sem faltas sobrando!")}).join("\n")}
+function provasMsg(){var e=nextEvents().slice(0,4);return e.length?e.map(function(x){var d=daysTo(x.date);return TYPES[x.type][1]+" "+sn(x.subj)+" "+(x.title||TYPES[x.type][0])+" · "+br(x.date)+" ("+(d<=0?"hoje":"em "+d+" dias")+")"}).join("\n"):"Nada marcado por enquanto. Cadastre as datas do plano de ensino! 📅"}
+function ctx(){return JSON.stringify({materias:S.subjects.map(function(s){var g=S.grades[s.id]||[],p=0;g.forEach(function(x){p+=+x.v});return{nome:s.name,faltas_usadas:s.used,faltas_permitidas:s.max,pontos:p,meta:s.meta||60,total:s.total||100}}),proximas:nextEvents().slice(0,6).map(function(e){return{materia:sn(e.subj),tipo:e.type,titulo:e.title,data:e.date}}),horarios:S.blocks.length})}
+function bot(m,u){chat.push({u:!!u,t:m});drawBot()}
+function drawBot(){var el=$("#msgs");el.innerHTML=chat.map(function(c){return '<div class="m'+(c.u?" u":"")+'">'+esc(c.t).replace(/\n/g,"<br>")+"</div>"}).join("");el.scrollTop=el.scrollHeight}
+async function ask(t){bot(t,true);var l=t.toLowerCase();
+ if(/falta/.test(l)&&!/plano|lista|exerc/.test(l))return bot(faltasMsg());
+ if(/pr[oó]xim|prazo/.test(l)&&!/plano|lista|exerc/.test(l))return bot(provasMsg());
+ if(/dica/.test(l)&&!/plano|lista|exerc/.test(l))return bot(TIPS[Math.floor(Math.random()*TIPS.length)]);
+ var s=await useSample();if(!s)return bot("Minha conversa livre não está disponível aqui, mas posso mostrar suas faltas, provas e dicas 😉");
+ bot("Pensando... 🤔");var i=chat.length-1,hist=chat.slice(-7,-1).map(function(c){return (c.u?"Aluno: ":"Plani: ")+c.t}).join("\n");
+ try{var r=await s('Você é a Plani, robô-amiga de estudantes universitários brasileiros dentro do site Planify. Fale de forma descontraída e acolhedora (bora, partiu, você consegue), frases curtas, poucos emojis, no máximo 150 palavras, sem formatação markdown. Ajude com faltas, rotina, notas, planos de estudo (blocos por dia com horário e duração) e listas de exercícios (5 a 8 questões; se faltar o assunto, pergunte). Dados do aluno: '+ctx()+"\nConversa:\n"+hist+"\nAluno: "+t,{cache:false});chat[i].t=r.text}catch(e){chat[i].t="Ops, deu um tropeço aqui. Tenta de novo? 🙈"}drawBot()}
+function openBot(m){$("#panel").classList.add("on");if(m)ask(m)}
+function buildBot(){var b=document.createElement("div");b.id="bot";b.innerHTML='<div id="panel"><div class="ph">🤖 Plani · sua amiga de estudos</div><div id="msgs"></div><div class="qs">'+["📊 Minhas faltas","📅 Próximas provas","🗓️ Monte um plano de estudo para minhas próximas provas","✏️ Crie uma lista de exercícios para minha próxima prova","💡 Dica de rotina"].map(function(q){return '<button class="chip" data-q="'+q+'">'+(q.length>22?q.slice(0,2)+(q.indexOf("plano")>0?" Plano de estudo":" Lista de exercícios"):q)+"</button>"}).join("")+'</div><div class="pf"><input id="qi" placeholder="Fale com a Plani..."><button class="btn" id="qs">Enviar</button></div></div><button id="fab" aria-label="Abrir a Plani">🤖</button>';document.body.appendChild(b);
+ $("#fab").onclick=function(){$("#panel").classList.toggle("on");$("#fab").classList.remove("al")};
+ $$(".qs [data-q]").forEach(function(c){c.onclick=function(){ask(c.dataset.q.replace(/^\S+ /,""))}});
+ var go2=function(){var v=$("#qi").value.trim();if(v){$("#qi").value="";ask(v)}};$("#qs").onclick=go2;$("#qi").onkeydown=function(e){if(e.key==="Enter")go2()};
+ var risk=S.subjects.filter(function(s){return s.used>=.7*s.max});bot("Oi, eu sou a Plani! 👋 "+(risk.length?"Fica de olho: "+risk.map(function(s){return s.name}).join(", ")+" está perto do limite de faltas.":"Posso te ajudar com faltas, provas, notas, plano de estudo e listas de exercícios. Bora?"));if(risk.length)$("#fab").classList.add("al")}
+$("#theme").onclick=function(){var r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;r.dataset.theme=dark?"light":"dark"};var DS=["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"],pending=null;
+function subjBlocks(id){return S.blocks.filter(function(b){return b.subj===id&&b.kind!=="estudo"})}
+function delSubj(id){if(!confirm("Remover esta matéria, horários e notas?"))return;S.subjects=S.subjects.filter(function(s){return s.id!==id});S.events=S.events.filter(function(e){return e.subj!==id});S.blocks=S.blocks.filter(function(b){return b.subj!==id});delete S.grades[id];save();render()}
+function subjForm(s){var pick=s?s.color:PAL[S.subjects.length%PAL.length],sel={},last=null;if(s)subjBlocks(s.id).forEach(function(b){sel[b.day]={from:b.from,to:b.to}});
+ modal(s?"Editar matéria":"Nova matéria",'<label>Nome</label><input id="n" value="'+(s?esc(s.name):"")+'" placeholder="Ex.: Cálculo I"><label>Quantas faltas essa matéria permite?</label><input id="c" type="number" min="1" max="99" value="'+(s?s.max:8)+'"><label>Cor</label><div class="sws">'+PAL.map(function(c){return '<button type="button" class="sw'+(c===pick?" on":"")+'" style="--c:'+c+'" data-c="'+c+'" aria-label="Cor"></button>'}).join("")+'</div><label>Em quais dias tem aula? (pode marcar vários)</label><div class="chips" id="dc"></div><div id="tr"></div>',function(){
+  var n=$("#n").value.trim(),c=parseInt($("#c").value,10),ok=true;if(!n||!c||c<1){$("#n").focus();return false}
+  $$("#tr input").forEach(function(x){sel[x.dataset.d][x.dataset.k]=x.value});var msg="";Object.keys(sel).forEach(function(d){var v=sel[d];if(msg)return;if(!v.from||!v.to)msg="Preencha início e fim de "+DN[d];else if(v.to<=v.from)msg=DN[d]+": o fim precisa ser depois do início";else{var o=overlap(+d,v.from,v.to,function(b){return s&&b.subj===s.id&&b.kind!=="estudo"});if(o)msg=DN[d]+" "+v.from+"–"+v.to+" bate com "+sn(o.subj)+" ("+o.from+"–"+o.to+")"}});if(msg){err(msg);return false}
+  if(s){s.name=n;s.max=c;s.color=pick}else{s={id:uid(),name:n,max:c,used:0,color:pick};S.subjects.push(s)}
+  S.blocks=S.blocks.filter(function(b){return !(b.subj===s.id&&b.kind!=="estudo")});var k=0;Object.keys(sel).forEach(function(d){S.blocks.push({id:uid(),subj:s.id,kind:"aula",day:+d,from:sel[d].from,to:sel[d].to});k++});
+  save();render();toast(k?k+" horário(s) já na sua rotina 🗓️":"Matéria salva")});
+ function draw(){$("#dc").innerHTML=DS.map(function(d,i){return '<button type="button" class="chip" data-i="'+i+'" aria-pressed="'+!!sel[i]+'">'+d+"</button>"}).join("");
+  $("#tr").innerHTML=Object.keys(sel).sort().map(function(d){return '<div class="tr"><b>'+DS[d]+'</b><input type="time" data-d="'+d+'" data-k="from" value="'+sel[d].from+'"><input type="time" data-d="'+d+'" data-k="to" value="'+sel[d].to+'"></div>'}).join("");
+  $$("#dc .chip").forEach(function(b){b.onclick=function(){var i=b.dataset.i;if(sel[i])delete sel[i];else{sel[i]=last?{from:last.from,to:last.to}:{from:"07:15",to:"09:00"};last=sel[i]}draw()}});
+  $$("#tr input").forEach(function(x){x.oninput=function(){sel[x.dataset.d][x.dataset.k]=x.value;last=sel[x.dataset.d]}})}
+ draw();$$(".sw").forEach(function(b){b.onclick=function(){pick=b.dataset.c;$$(".sw").forEach(function(x){x.classList.toggle("on",x===b)})}})}
+function vMaterias(){var h='<h2>Matérias</h2><p class="sub">Cadastre a matéria, o limite de faltas e os horários. A rotina é preenchida sozinha (e você ainda pode editar à mão).</p><div class="bar"><button class="btn" id="add">+ Nova matéria</button></div>';
+ if(!S.subjects.length)h+='<div class="card empty"><div style="font-size:44px">📚</div>Comece adicionando sua primeira matéria.<br>Informe quantas faltas ela permite e os dias e horários das aulas.</div>';
+ else h+='<div class="grid">'+S.subjects.map(function(s){var bl=subjBlocks(s.id).sort(function(a,b){return a.day-b.day});return '<div class="card sc" style="--c:'+s.color+'"><div class="row"><b style="font-size:17px">'+esc(s.name)+'</b><span><button class="x" data-ed="'+s.id+'" aria-label="Editar">✎</button><button class="x" data-del="'+s.id+'" aria-label="Remover">×</button></span></div><p class="sub" style="margin:4px 0 10px">⛔ até '+s.max+' faltas</p><div class="hc2" style="--c:'+s.color+'">'+(bl.length?bl.map(function(b){return "<span>"+DS[b.day]+" "+b.from+"–"+b.to+"</span>"}).join(""):'<span class="no">sem horários</span>')+"</div></div>"}).join("")+"</div>";
+ $("#app").innerHTML=h;$("#add").onclick=function(){subjForm()};$$("[data-ed]").forEach(function(b){b.onclick=function(){subjForm(subj(b.dataset.ed))}});$$("[data-del]").forEach(function(b){b.onclick=function(){delSubj(b.dataset.del)}})}
+function heroBar(){var d=new Date(),td=(d.getDay()+6)%7,hr=d.getHours(),g=hr<12?"Bom dia":hr<18?"Boa tarde":"Boa noite",cl=S.blocks.filter(function(b){return b.day===td&&b.kind!=="estudo"}).sort(function(a,b){return a.from<b.from?-1:1}),n=nextEvents()[0],el=document.createElement("div");
+ el.className="hero";el.innerHTML="<h3>"+g+"! 👋</h3><p>"+DN[td]+", "+d.getDate()+" de "+MONTHS[d.getMonth()].toLowerCase()+'</p><div class="hc">'+(cl.length?cl.map(function(b){return "<span>"+b.from+" "+esc(sn(b.subj))+"</span>"}).join(""):"<span>Sem aulas hoje 🎉</span>")+(n?"<span>"+TYPES[n.type][1]+" "+esc(sn(n.subj))+" "+(daysTo(n.date)<=0?"hoje":"em "+daysTo(n.date)+" dias")+"</span>":"")+"</div>";$("#app").prepend(el)}
+function hojeMsg(){var td=(new Date().getDay()+6)%7,cl=S.blocks.filter(function(b){return b.day===td&&b.kind!=="estudo"}).sort(function(a,b){return a.from<b.from?-1:1});return cl.length?"Hoje você tem:\n"+cl.map(function(b){return "⏰ "+b.from+"–"+b.to+" "+sn(b.subj)}).join("\n")+"\nBora! 💪":"Sem aulas hoje! Que tal um bloco de estudo? 📖"}
+function notasMsg(){if(!S.subjects.length)return "Cadastre matérias e notas que eu faço as contas pra você!";return S.subjects.map(function(s){var g=S.grades[s.id]||[],got=0,dist=0,meta=s.meta||60,tot=s.total||100;g.forEach(function(x){got+=+x.v;dist+=+x.max});var need=Math.max(0,meta-got),left=Math.max(0,tot-dist);return (need===0?"🎉 ":need>left?"⚠️ ":"📈 ")+s.name+": "+got+" pts"+(need?" · faltam "+need+(left?" ("+Math.round(need/left*100)+"% do que ainda vale)":""):" · meta batida!")}).join("\n")}
+function planMsg(t,sub){var ev=nextEvents().filter(function(e){return e.type!=="outro"&&(!sub||e.subj===sub.id)})[0];if(!ev)return "Não achei prova ou trabalho futuro"+(sub?" de "+sub.name:"")+". Cadastre na aba Avaliações e eu monto o plano! 📅";
+ var d=daysTo(ev.date),st=["Revisão leve e descanso","Simulado cronometrado","Lista de exercícios novos","Refazer exercícios das aulas","Resumo e anotações"],n=Math.min(5,Math.max(0,d)),lines=[],evs=[];
+ if(d<=0)return "É hoje! Respira, revisa só os pontos principais e confia no que estudou 🍀";
+ for(var i=n;i>=1;i--){var dt=new Date(ev.date+"T12:00");dt.setDate(dt.getDate()-i);if(dt<new Date(new Date().toDateString()))continue;var s=st[i-1];lines.push("📌 "+br(iso(dt))+" · 19:00–20:00 · "+s);evs.push({id:uid(),subj:ev.subj,type:"outro",title:"Estudar: "+s,date:iso(dt),from:"19:00",to:"20:00"})}
+ pending=evs;return TYPES[ev.type][1]+" "+sn(ev.subj)+" "+(ev.title||TYPES[ev.type][0])+" em "+d+" dias. Plano:\n"+lines.join("\n")+"\n\nQuer que eu agende no calendário? Responda sim ✅"}
+function ask(t){bot(t,true);var f=function(x){return x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")},l=f(t),sub=S.subjects.find(function(s){return l.indexOf(f(s.name))>=0});
+ if(/^(sim|agendar|pode)/.test(l)){if(pending&&pending.length){S.events=S.events.concat(pending);save();var k=pending.length;pending=null;render();return bot("Pronto! "+k+" blocos de estudo agendados no calendário 🎯")}return bot("Não tenho nada pra agendar agora. Peça um plano de estudo primeiro 😉")}
+ if(/faltei/.test(l)){if(sub){bump(sub.id,1);var r=sub.max-sub.used;return bot("Anotado: +1 falta em "+sub.name+". "+(r>0?"Ainda sobram "+r+".":"Limite atingido, cuidado! 🚨"))}return bot("Em qual matéria você faltou? Ex.: faltei em "+(S.subjects[0]?S.subjects[0].name:"cálculo"))}
+ if(/plano|estud|exerc|lista|revis/.test(l))return bot(planMsg(t,sub));
+ if(/falta|posso faltar/.test(l))return bot(faltasMsg());
+ if(/prova|prazo|avalia|trabalho|proxim/.test(l))return bot(provasMsg());
+ if(/hoje|aula/.test(l))return bot(hojeMsg());
+ if(/nota|ponto|media|meta|passar/.test(l))return bot(notasMsg());
+ if(/dica|rotina|ajuda|oi|ola/.test(l))return bot(TIPS[Math.floor(Math.random()*TIPS.length)]);
+ bot("Posso te ajudar com: faltas, provas, aulas de hoje, notas, plano de estudo e dicas. Também dá pra dizer: faltei em "+(S.subjects[0]?S.subjects[0].name:"cálculo")+" 😉")}
+function buildBot(){var b=document.createElement("div");b.id="bot";b.innerHTML='<div id="panel"><div class="ph">🤖 Plani · sua amiga de estudos</div><div id="msgs"></div><div class="qs">'+[["📊 Faltas","minhas faltas"],["📅 Provas","próximas provas"],["🗓️ Hoje","aulas de hoje"],["🎯 Notas","minhas notas"],["📖 Plano de estudo","plano de estudo"],["💡 Dica","dica"]].map(function(q){return '<button class="chip" data-q="'+q[1]+'">'+q[0]+"</button>"}).join("")+'</div><div class="pf"><input id="qi" placeholder="Ex.: faltei em cálculo"><button class="btn" id="qs">Enviar</button></div></div><button id="fab" aria-label="Abrir a Plani">🤖</button>';document.body.appendChild(b);
+ $("#fab").onclick=function(){$("#panel").classList.toggle("on");$("#fab").classList.remove("al")};$$(".qs [data-q]").forEach(function(c){c.onclick=function(){ask(c.dataset.q)}});
+ var go2=function(){var v=$("#qi").value.trim();if(v){$("#qi").value="";ask(v)}};$("#qs").onclick=go2;$("#qi").onkeydown=function(e){if(e.key==="Enter")go2()};
+ var risk=S.subjects.filter(function(s){return s.used>=.7*s.max});bot("Oi, eu sou a Plani! 👋 "+(!S.subjects.length?"Comece cadastrando suas matérias na aba Matérias.":risk.length?"Fica de olho: "+risk.map(function(s){return s.name}).join(", ")+" está perto do limite de faltas.":"Tá tudo certo por aqui. Escolha uma opção abaixo!"));if(risk.length)$("#fab").classList.add("al")}
+function overlap(day,f,t,skip){return S.blocks.find(function(b){return b.day===day&&!(skip&&skip(b))&&f<b.to&&b.from<t})}
+function err(m){var e=$("#er");if(!e){e=document.createElement("p");e.id="er";e.style.cssText="color:var(--er);font-weight:600;margin:10px 0 0";$("#dlgb").insertBefore(e,$("#dlgb .row.end"))}e.textContent=m}function delSubj(id){var s=subj(id);if(!s)return;modal("Remover matéria","<p>Remover <b>"+esc(s.name)+"</b> junto com horários, avaliações e notas?</p>",function(){S.subjects=S.subjects.filter(function(x){return x.id!==id});S.events=S.events.filter(function(e){return e.subj!==id});S.blocks=S.blocks.filter(function(b){return b.subj!==id});delete S.grades[id];save();render();toast("Matéria removida")},"Remover")}
+
+render();buildBot();
+</script>
+</body>
+</html>
